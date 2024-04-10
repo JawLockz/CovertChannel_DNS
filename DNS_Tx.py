@@ -1,10 +1,6 @@
 from scapy.all import *
 import os
-
-if os.getuid() != 0:
-    print("This script needs to be run as root to work")
-    exit(1)
-
+import math
 
 DNS_Destination = {
     "8.8.8.8":"0",
@@ -36,9 +32,6 @@ DNS_qname = {
     "support.google.com":"7"    
 }
 
-# if interface not in scapy.interfaces.get_if_list():
-#     print("Warning, interface not found in interface list")
-
 def send_dns_query(domain_name, dns_server):
     # Create DNS query packet
     dns_query_packet = IP(dst=dns_server)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname=domain_name, qtype='A'))
@@ -52,6 +45,31 @@ def send_dns_query(domain_name, dns_server):
             print("IPv4 Address:", dns_response[DNSRR][i].rdata)
     else:
         print("No response received or invalid response.")
+
+#Function to check if the given message is ascii to ensure it can be transmitted using this method
+def is_ascii(s):
+    return all(ord(c) < 128 for c in s)
+
+def toBinary(a):
+  ascii_nums,binary=[],[]
+  for i in a:
+    ascii_nums.append(ord(i))
+  for i in ascii_nums:
+    binary.append(int(bin(i)[2:]))
+  return binary
+
+if os.getuid() != 0:
+    print("This script needs to be run as root to work")
+    exit(1)
+
+ascii = False
+while not(ascii):
+    message = input("Enter your text to send:")
+    ascii = is_ascii(message)
+    if not (ascii):
+        print("Given string contains non-ascii characters, try again.")
+
+
 
 domain_name = "netflix.com"  # Domain name to query
 dns_server = "8.8.8.8"  # DNS server IP address
