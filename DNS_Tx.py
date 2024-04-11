@@ -1,6 +1,8 @@
 from scapy.all import *
 import os
-import math
+import requests
+import time
+import random
 
 DNS_Destination = {
     "0": "8.8.8.8",
@@ -58,6 +60,10 @@ def toBinary(a):
     binary.append(int(bin(i)[2:]))
   return binary
 
+def short_sleep():
+    sleep_duration = random.uniform(1, 5)
+    time.sleep(sleep_duration)
+
 if os.getuid() != 0:
     print("This script needs to be run as root to work")
     exit(1)
@@ -69,9 +75,27 @@ while not(ascii):
     if not (ascii):
         print("Given string contains non-ascii characters, try again.")
 
+# Hint to use this as a forensics exercise by referencing the two sources for our dictionaries in our network traffic
+try:
+    r = requests.get("http://www.lifewire.com/free-and-public-dns-servers-2626062", timeout=5)
+    print(r.status_code)
+except requests.exceptions.Timeout:
+    print("Request timed out")
+except requests.exceptions.RequestException as e:
+    print("Error:", e)
+short_sleep()
+try:
+    r = requests.get("http://moz.com/top-500/download/?table=top500Domains", timeout=5)
+    print(r.status_code)
+except requests.exceptions.Timeout:
+    print("Request timed out")
+except requests.exceptions.RequestException as e:
+    print("Error:", e)
+
 binary = toBinary(message)
 print(binary)
 for char in binary:
+    short_sleep()
     domain_name = str(char)[:3]  # Domain name to query
     dns_server = str(char)[3:7]  # DNS server IP address
     domain_name = DNS_qname[str(int(domain_name, 2))]
