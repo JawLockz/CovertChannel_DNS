@@ -33,7 +33,6 @@ DNS_qname = {
 
 pcapName = input("Enter the name of the pcap file: ")
 srcIP = input("Enter the source IP: ")
-dstIP = input("Enter the destination IP: ")
 
 packets = PcapReader(pcapName)
 
