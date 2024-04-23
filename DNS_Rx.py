@@ -21,14 +21,14 @@ DNS_Destination = {
 }
 
 DNS_qname = {
-    "youtube.com": "0",
-    "www.google.com": "1",
-    "www.blogger.com": "2",
-    "linkedin.com": "3",
-    "cloudflare.com": "4",
-    "microsoft.com": "5",
-    "apple.com": "6",
-    "support.google.com": "7"
+    "youtube.com.": "0",
+    "www.google.com.": "1",
+    "www.blogger.com.": "2",
+    "linkedin.com.": "3",
+    "cloudflare.com.": "4",
+    "microsoft.com.": "5",
+    "apple.com.": "6",
+    "support.google.com.": "7"
 }
 
 pcapName = input("Enter the name of the pcap file: ")
@@ -36,12 +36,28 @@ srcIP = input("Enter the source IP: ")
 
 packets = PcapReader(pcapName)
 
-message = ""
+binary_message = ""
 dns_info = []
 for packet in packets:
     if packet.haslayer(IP):
         if packet.haslayer(DNS):
             if packet[IP].src == srcIP:
-                destination = packet[IP].dst
-                qname = packet[DNS].qd.qname.decode('utf-8')
-                dns_info.append((destination, qname))
+                if packet[DNS].qr == 0:
+                    destination = packet[IP].dst
+                    qname = packet[DNS].qd.qname.decode('utf-8')
+                    if destination in DNS_Destination and qname in DNS_qname:
+                        dns_binary = "0" + bin(int(DNS_qname[qname]))[2:].zfill(3)  # Convert DNS value to binary
+                        ip_binary = bin(int(DNS_Destination[destination]))[2:].zfill(4)  # Convert IP value to binary
+                        combined_binary = dns_binary + ip_binary
+                        print(combined_binary)
+                        binary_message += combined_binary
+                        dns_info.append((destination, qname))
+for data in dns_info:
+    print(data)
+# Convert binary message to ASCII characters
+message = ""
+for i in range(0, len(binary_message), 8):
+    byte = binary_message[i:i+8]
+    message += chr(int(byte, 2))
+
+print("Hidden message:", message)
